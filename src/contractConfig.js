@@ -1,6 +1,6 @@
 // contractConfig.js
 
-export const CONTRACT_ADDRESS = "0x5918fbFBDA2ff053e2b22aB979C4e5F84604eb51";
+export const CONTRACT_ADDRESS = "0x3bBeD73f8fe0D0a3a43B6398400ee689C5E0cBC9";
 
 export const ABI = [
   
@@ -176,7 +176,4 @@ export const ABI = [
 		"stateMutability": "view",
 		"type": "function"
 	}
-
-  
-
 ];
