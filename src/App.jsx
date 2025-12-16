@@ -5,6 +5,8 @@ import { CONTRACT_ADDRESS, ABI } from "./contractConfig";
 function App() {
   const [account, setAccount] = useState(null);
   const [contract, setContract] = useState(null);
+  const [myTickets, setMyTickets] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const [ticketPrice, setTicketPrice] = useState("");
   const [status, setStatus] = useState("");
@@ -62,24 +64,25 @@ function App() {
   const buyTicket = async () => {
     if (!contract) return alert("Connect wallet first!");
 
-    try {
-      setStatus("Mining transaction... please wait...");
-      
-      // We FORCE the Gas Limit to 300,000 to bypass the "Estimation" error
-      const tx = await contract.buyTicket({ 
-        value: ethers.parseEther("0.01"), 
-        gasLimit: 300000 
-      });
+     try {
+    setLoading(true);
+    setStatus("Mining transaction... please wait...");
 
-      await tx.wait(); 
-      setStatus("Ticket purchased successfully! 🎉");
-      loadInfo(); 
-      
-    } catch (error) {
-      console.error("Error:", error);
-      setStatus("Transaction Failed ❌");
-    }
-  };
+    const tx = await contract.buyTicket({ 
+      value: ethers.parseEther("0.01"), 
+      gasLimit: 300000 
+    });
+
+    await tx.wait();
+    setStatus("Ticket purchased successfully! 🎉");
+    loadInfo();
+  } catch (error) {
+    console.error(error);
+    setStatus(error.reason || "Transaction Failed ❌");
+  } finally {
+    setLoading(false);
+  }
+};
  
 
   // ---------------- PICK WINNER ----------------
@@ -112,6 +115,11 @@ function App() {
       setLastWinner(
         w === "0x0000000000000000000000000000000000000000" ? "None" : w
       );
+      const count = p.filter(
+      (addr) => addr.toLowerCase() === account?.toLowerCase()
+    ).length;
+
+    setMyTickets(count);
 
     } catch (error) {
       console.error(error);
@@ -132,11 +140,15 @@ function App() {
       <p><strong>Connected:</strong> {account || "Not connected"}</p>
 
       <hr />
+      <button onClick={buyTicket} disabled={loading}>
+      {loading ? "Processing..." : "Buy Ticket"}
+       </button>
+
 
       <h2>Buy Ticket</h2>
       <input
         type="text"
-        placeholder="Ticket price in ETH"
+        placeholder="Ticket price in ETH (1 ticket = 0.01 ETH)"
         value={ticketPrice}
         onChange={(e) => setTicketPrice(e.target.value)}
       />
@@ -155,6 +167,7 @@ function App() {
       <p>
         <strong>Contract Balance:</strong> {balance} ETH
       </p>
+      <p><strong>My Tickets:</strong> {myTickets}</p>
 
       <p><strong>Players:</strong></p>
       <ul>
