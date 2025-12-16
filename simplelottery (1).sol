@@ -6,7 +6,7 @@ contract SimpleLottery {
     address[] public players;
     uint256 public ticketPrice;
     address public lastWinner;
-    uint256 public endTime;
+    uint256 public endTime; 
 
 
     event TicketBought(address indexed player);
@@ -71,5 +71,6 @@ contract SimpleLottery {
         require(msg.sender == owner, "Not owner");
         _;
     }
+
 
 }
